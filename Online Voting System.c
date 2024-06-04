@@ -1,81 +1,85 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define MAX_CANDIDATES 3
-#define MAX_VOTERS 100
+#define MAX_CANDIDATES 10
 
+// Structure to represent a candidate
 typedef struct {
     char name[50];
     int votes;
 } Candidate;
 
-void displayCandidates(Candidate candidates[], int count);
-void vote(Candidate candidates[], int count);
-void displayResults(Candidate candidates[], int count);
-
-int main() {
-    Candidate candidates[MAX_CANDIDATES] = {
-        {"Alice", 0},
-        {"Bob", 0},
-        {"Charlie", 0}
-    };
-    int voterCount = 0;
+// Function to cast a vote for a candidate
+void vote(Candidate candidates[], int numCandidates) {
     int choice;
-
-    while (voterCount < MAX_VOTERS) {
-        printf("Voter %d:\n", voterCount + 1);
-        displayCandidates(candidates, MAX_CANDIDATES);
-        vote(candidates, MAX_CANDIDATES);
-        voterCount++;
-
-        printf("Do you want to add another vote? (1 for Yes, 0 for No): ");
-        scanf("%d", &choice);
-        if (choice == 0) break;
-    }
-
-    displayResults(candidates, MAX_CANDIDATES);
-
-    return 0;
-}
-
-void displayCandidates(Candidate candidates[], int count) {
     printf("Candidates:\n");
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < numCandidates; i++) {
         printf("%d. %s\n", i + 1, candidates[i].name);
     }
-}
+    printf("Enter your choice (1-%d): ", numCandidates);
+    scanf("%d", &choice);
 
-void vote(Candidate candidates[], int count) {
-    int vote;
-    printf("Enter the number of the candidate you want to vote for: ");
-    scanf("%d", &vote);
-    if (vote > 0 && vote <= count) {
-        candidates[vote - 1].votes++;
-    } else {
-        printf("Invalid vote. Try again.\n");
-        vote(candidates, count);
+    // Validate choice
+    if (choice < 1 || choice > numCandidates) {
+        printf("Invalid choice!\n");
+        return;
     }
+
+    // Increment vote count for the chosen candidate
+    candidates[choice - 1].votes++;
+    printf("You have voted for %s.\n", candidates[choice - 1].name);
 }
 
-void displayResults(Candidate candidates[], int count) {
-    printf("\nVoting Results:\n");
-    for (int i = 0; i < count; i++) {
+// Function to display the results
+void displayResults(Candidate candidates[], int numCandidates) {
+    printf("Voting Results:\n");
+    for (int i = 0; i < numCandidates; i++) {
         printf("%s: %d votes\n", candidates[i].name, candidates[i].votes);
     }
+}
 
-    // Determine the winner
-    int maxVotes = 0;
-    int winnerIndex = -1;
-    for (int i = 0; i < count; i++) {
-        if (candidates[i].votes > maxVotes) {
-            maxVotes = candidates[i].votes;
-            winnerIndex = i;
+int main() {
+    int numCandidates;
+    printf("Enter the number of candidates: ");
+    scanf("%d", &numCandidates);
+
+    // Validate number of candidates
+    if (numCandidates < 1 || numCandidates > MAX_CANDIDATES) {
+        printf("Invalid number of candidates!\n");
+        return 1;
+    }
+
+    // Initialize candidates
+    Candidate candidates[MAX_CANDIDATES];
+    for (int i = 0; i < numCandidates; i++) {
+        printf("Enter the name of candidate %d: ", i + 1);
+        scanf("%s", candidates[i].name);
+        candidates[i].votes = 0;
+    }
+
+    int choice;
+    do {
+        printf("\n1. Vote\n");
+        printf("2. Display Results\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                vote(candidates, numCandidates);
+                break;
+            case 2:
+                displayResults(candidates, numCandidates);
+                break;
+            case 3:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice!\n");
         }
-    }
+    } while (choice != 3);
 
-    if (winnerIndex != -1) {
-        printf("Winner: %s with %d votes\n", candidates[winnerIndex].name, candidates[winnerIndex].votes);
-    } else {
-        printf("No winner determined.\n");
-    }
+    return 0;
 }
